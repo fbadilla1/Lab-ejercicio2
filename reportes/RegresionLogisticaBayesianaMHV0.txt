@@ -1,0 +1,51 @@
+Timer unit: 1e-06 s
+
+Total time: 2.57461 s
+File: <ipython-input-8-f28106b236f3>
+Function: metropolis_hastings at line 45
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    45                                               def metropolis_hastings(self, X, y, semilla):
+    46                                                   '''
+    47                                                   Muestrea el espacio de los parametros mediante Metropolis-Hastings
+    48                                                   '''
+    49                                           
+    50                                                   # asegura replicabilidad
+    51         1         18.0     18.0      0.0          np.random.seed(semilla)
+    52                                           
+    53                                                   # obtiene distribucion a priori y candidatos
+    54         1       1561.0   1561.0      0.1          distribucion_priori = self.get_priori()
+    55         1       5805.0   5805.0      0.2          W_candidatos = self.get_metropolis_hastings_candidatos()
+    56         1         45.0     45.0      0.0          U_aceptacion = self.get_metropolis_hastings_uniformes()
+    57                                           
+    58                                                   # contador de candidatos aceptados
+    59         1          1.0      1.0      0.0          aceptados = 0
+    60                                           
+    61      1001       1102.0      1.1      0.0          for i, w_candidato in enumerate(W_candidatos):
+    62                                           
+    63                                                       # localiza distribucion candidatos en w_actual
+    64      1000        940.0      0.9      0.0              w_actual = self.traza[i]
+    65      1000       4245.0      4.2      0.2              w_candidato += w_actual
+    66                                           
+    67                                                       # calcula prior
+    68      1000      50675.0     50.7      2.0              delta_prior = distribucion_priori.logpdf(w_candidato) - \
+    69      1000      36726.0     36.7      1.4                  distribucion_priori.logpdf(w_actual)
+    70                                           
+    71                                                       # calcula verosimilitud
+    72      1000    1238235.0   1238.2     48.1              delta_verosimilitud = self._log_verosimilitud(w_candidato, X, y) - \
+    73      1000    1227925.0   1227.9     47.7                  self._log_verosimilitud(w_actual, X, y)
+    74                                           
+    75                                                       # probabilidad de aceptacion
+    76      1000       2411.0      2.4      0.1              p_aceptacion = math.exp(delta_verosimilitud + delta_prior)
+    77                                           
+    78      1000       1793.0      1.8      0.1              if U_aceptacion[i] < p_aceptacion:
+    79                                           
+    80                                                           # actualiza valor actual y contador de aceptados
+    81       645        534.0      0.8      0.0                  w_actual = w_candidato
+    82       645        463.0      0.7      0.0                  aceptados += 1
+    83                                           
+    84      1000       2128.0      2.1      0.1              self.traza[i+1] = w_actual
+    85                                           
+    86                                                   # almacena la proporcion de candidatos aceptados
+    87         1          1.0      1.0      0.0          self.proporcion_aceptacion = aceptados / self.n_muestras
